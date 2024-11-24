@@ -1,79 +1,38 @@
+import { useState } from "react";
+
 const initialFriends = [
   {
     id: 118836,
     name: "Clark",
     image: "https://i.pravatar.cc/48?u=118836",
     balance: -7,
-    getBalanceStatusHTML: function () {
-      if (this.balance < 0) {
-        return (
-          <p className="red">
-            You owe {this.name} {Math.abs(this.balance)}$
-          </p>
-        );
-      } else if (this.balance > 0) {
-        return (
-          <p className="green">
-            {this.name} owes you {Math.abs(this.balance)}$
-          </p>
-        );
-      }
-      return <p>You and your friend are even</p>;
-    },
   },
   {
     id: 933372,
     name: "Sarah",
     image: "https://i.pravatar.cc/48?u=933372",
     balance: 20,
-    getBalanceStatusHTML: function () {
-      if (this.balance < 0) {
-        return (
-          <p className="red">
-            You owe {this.name} {Math.abs(this.balance)}$
-          </p>
-        );
-      } else if (this.balance > 0) {
-        return (
-          <p className="green">
-            {this.name} owes you {Math.abs(this.balance)}$
-          </p>
-        );
-      }
-      return <p>You and your friend are even</p>;
-    },
   },
   {
     id: 499476,
     name: "Anthony",
     image: "https://i.pravatar.cc/48?u=499476",
     balance: 0,
-    getBalanceStatusHTML: function () {
-      if (this.balance < 0) {
-        return (
-          <p className="red">
-            You owe {this.name} {Math.abs(this.balance)}$
-          </p>
-        );
-      } else if (this.balance > 0) {
-        return (
-          <p className="green">
-            {this.name} owes you {Math.abs(this.balance)}$
-          </p>
-        );
-      }
-      return <p>You and your friend are even</p>;
-    },
   },
 ];
 
 export default function App() {
+  const [isAddingFriend, setIsAddingFriend] = useState(false);
+  const [friendsList, setFriendsList] = useState(initialFriends);
+
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList />
-        <AddFriendForm />
-        <Button>Add friend</Button>
+        <FriendsList friends={friendsList} />
+        {isAddingFriend && <AddFriendForm addFriends={setFriendsList} />}
+        <Button onClick={() => setIsAddingFriend((prevState) => !prevState)}>
+          {isAddingFriend ? "Close" : "Add friend"}
+        </Button>
       </div>
 
       <SplitBillForm />
@@ -81,9 +40,7 @@ export default function App() {
   );
 }
 
-function FriendsList() {
-  const friends = initialFriends;
-
+function FriendsList({ friends }) {
   return (
     <ul>
       {friends.map((friend) => (
@@ -94,30 +51,75 @@ function FriendsList() {
 }
 
 function Friend({ friend }) {
+  const getBalanceDetails = () => {
+    if (friend.balance < 0) {
+      return (
+        <p className="red">
+          You owe {friend.name} {Math.abs(friend.balance)}$
+        </p>
+      );
+    } else if (friend.balance > 0) {
+      return (
+        <p className="green">
+          {friend.name} owes you {Math.abs(friend.balance)}$
+        </p>
+      );
+    }
+    return <p>You and your friend are even</p>;
+  };
+
   return (
     <li>
       <img src={friend.image} alt={friend.name} />
       <h3>{friend.name}</h3>
 
-      {friend.getBalanceStatusHTML()}
+      {getBalanceDetails()}
 
       <Button>Select</Button>
     </li>
   );
 }
 
-function Button({ children }) {
-  return <button className="button">{children}</button>;
+function Button({ children, ...rest }) {
+  return (
+    <button className="button" {...rest}>
+      {children}
+    </button>
+  );
 }
 
-function AddFriendForm() {
+function AddFriendForm({ addFriends }) {
+  const [friendName, setFriendName] = useState("");
+
+  const handleAddFriend = (e) => {
+    console.log(e);
+    e.preventDefault();
+
+    addFriends((prevFriends) => [
+      ...prevFriends,
+      {
+        id: (prevFriends.length + 1) * 223345,
+        name: friendName,
+        image: `https://i.pravatar.cc/48?u=${
+          (prevFriends.length + 1) * 223345
+        }`,
+        balance: 0,
+      },
+    ]);
+  };
+
   return (
-    <form className="form-add-friend">
-      <label>👯 Friend name </label>
-      <input type="text" />
+    <form className="form-add-friend" onSubmit={handleAddFriend}>
+      <label>👫 Friend name</label>
+      <input
+        type="text"
+        value={friendName}
+        onChange={(e) => setFriendName(e.target.value)}
+        required
+      />
 
       <label>🌄 Image URL</label>
-      <input type="text" />
+      <input type="text" value="https://i.pravatar.cc/48" disabled />
 
       <Button>Add</Button>
     </form>
