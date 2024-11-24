@@ -1,6 +1,6 @@
 import Button from "./Button";
 
-export default function Friend({ friend }) {
+export default function Friend({ friend, activeFriend, selectFriend }) {
   const getBalanceDetails = () => {
     if (friend.balance < 0) {
       return (
@@ -25,7 +25,13 @@ export default function Friend({ friend }) {
 
       {getBalanceDetails()}
 
-      <Button>Select</Button>
+      <Button
+        onClick={() =>
+          selectFriend((prevId) => (prevId !== friend.id ? friend.id : null))
+        }
+      >
+        {activeFriend === friend.id ? "Close" : "Select"}
+      </Button>
     </li>
   );
 }
